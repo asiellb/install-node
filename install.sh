@@ -5,24 +5,24 @@
 #
 # For newest Node.js version:
 #
-#   $ curl -sL install-node.now.sh | sh
+#   $ curl -sL raw.githubusercontent.com/asiellb/install-node/master/install.sh | sh
 
 # For latest LTS Node.js version:
 #
-#   $ curl -sL install-node.now.sh/lts | sh
+#   $ curl -sL raw.githubusercontent.com/asiellb/install-node/master/install.sh/lts | sh
 #
 # Install a specific version (ex: v8.9.0):
 #
-#   $ curl -sL install-node.now.sh/v8.9.0 | sh
+#   $ curl -sL raw.githubusercontent.com/asiellb/install-node/master/install.sh/v8.9.0 | sh
 #
 # Semver also works (ex: v4.x.x):
 #
-#   $ curl -sL install-node.now.sh/4 | sh
+#   $ curl -sL raw.githubusercontent.com/asiellb/install-node/master/install.sh/4 | sh
 #
 # Options may be passed to the shell script with `-s --`:
 #
-#   $ curl -sL install-node.now.sh | sh -s -- --prefix=$HOME --version=8 --verbose
-#   $ curl -sL install-node.now.sh | sh -s -- -P $HOME -v 8 -V
+#   $ curl -sL raw.githubusercontent.com/asiellb/install-node/master/install.sh | sh -s -- --prefix=$HOME --version=8 --verbose
+#   $ curl -sL raw.githubusercontent.com/asiellb/install-node/master/install.sh | sh -s -- -P $HOME -v 8 -V
 #
 # Patches welcome!
 # https://github.com/zeit/install-node.now.sh
@@ -88,7 +88,7 @@ resolve_node_version() {
   if [ "${tag}" = "latest" ]; then
     tag=
   fi
-  fetch "https://resolve-node.now.sh/$tag"
+  fetch "https://resolve-node.vercel.app/$tag"
 }
 
 # Currently known to support:
@@ -147,7 +147,7 @@ confirm() {
   if [ -z "${FORCE-}" ]; then
     printf "${MAGENTA}?${NO_COLOR} $@ ${BOLD}[yN]${NO_COLOR} "
     set +e
-    read yn < /dev/tty
+    read yn </dev/tty
     rc=$?
     set -e
     if [ $rc -ne 0 ]; then
@@ -165,7 +165,8 @@ check_prefix() {
   local bin="$1/bin"
 
   # https://stackoverflow.com/a/11655875
-  local good=$( IFS=:
+  local good=$(
+    IFS=:
     for path in $PATH; do
       if [ "${path}" = "${bin}" ]; then
         echo 1
@@ -203,25 +204,73 @@ fi
 # parse argv variables
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    -v|--version) VERSION="$2"; shift 2;;
-    -p|--platform) PLATFORM="$2"; shift 2;;
-    -P|--prefix) PREFIX="$2"; shift 2;;
-    -a|--arch) ARCH="$2"; shift 2;;
-    -b|--base-url) BASE_URL="$2"; shift 2;;
+  -v | --version)
+    VERSION="$2"
+    shift 2
+    ;;
+  -p | --platform)
+    PLATFORM="$2"
+    shift 2
+    ;;
+  -P | --prefix)
+    PREFIX="$2"
+    shift 2
+    ;;
+  -a | --arch)
+    ARCH="$2"
+    shift 2
+    ;;
+  -b | --base-url)
+    BASE_URL="$2"
+    shift 2
+    ;;
 
-    -V|--verbose) VERBOSE=1; shift 1;;
-    -f|-y|--force|--yes) FORCE=1; shift 1;;
+  -V | --verbose)
+    VERBOSE=1
+    shift 1
+    ;;
+  -f | -y | --force | --yes)
+    FORCE=1
+    shift 1
+    ;;
 
-    -v=*|--version=*) VERSION="${1#*=}"; shift 1;;
-    -p=*|--platform=*) PLATFORM="${1#*=}"; shift 1;;
-    -P=*|--prefix=*) PREFIX="${1#*=}"; shift 1;;
-    -a=*|--arch=*) ARCH="${1#*=}"; shift 1;;
-    -b=*|--base-url=*) BASE_URL="${1#*=}"; shift 1;;
-    -V=*|--verbose=*) VERBOSE="${1#*=}"; shift 1;;
-    -f=*|-y=*|--force=*|--yes=*) FORCE="${1#*=}"; shift 1;;
+  -v=* | --version=*)
+    VERSION="${1#*=}"
+    shift 1
+    ;;
+  -p=* | --platform=*)
+    PLATFORM="${1#*=}"
+    shift 1
+    ;;
+  -P=* | --prefix=*)
+    PREFIX="${1#*=}"
+    shift 1
+    ;;
+  -a=* | --arch=*)
+    ARCH="${1#*=}"
+    shift 1
+    ;;
+  -b=* | --base-url=*)
+    BASE_URL="${1#*=}"
+    shift 1
+    ;;
+  -V=* | --verbose=*)
+    VERBOSE="${1#*=}"
+    shift 1
+    ;;
+  -f=* | -y=* | --force=* | --yes=*)
+    FORCE="${1#*=}"
+    shift 1
+    ;;
 
-    -*) error "Unknown option: $1"; exit 1;;
-    *) VERSION="$1"; shift 1;;
+  -*)
+    error "Unknown option: $1"
+    exit 1
+    ;;
+  *)
+    VERSION="$1"
+    shift 1
+    ;;
   esac
 done
 
@@ -270,16 +319,16 @@ confirm "Install Node.js ${GREEN}${RESOLVED}${NO_COLOR} to ${BOLD}${GREEN}${PREF
 info "Installing Node.js, please wait…"
 
 if [ "${EXT}" = zip ]; then
-  fetch "${URL}" \
-    | tar xzf${VERBOSE} - \
+  fetch "${URL}" |
+    tar xzf${VERBOSE} - \
       --exclude CHANGELOG.md \
       --exclude LICENSE \
       --exclude README.md \
       --strip-components 1 \
       -C "${PREFIX}"
 else
-  fetch "${URL}" \
-    | tar xzf${VERBOSE} - \
+  fetch "${URL}" |
+    tar xzf${VERBOSE} - \
       --exclude CHANGELOG.md \
       --exclude LICENSE \
       --exclude README.md \
